@@ -59,6 +59,78 @@
     </returns>
   </xsl:template>
 
+    <xsl:template match="since_tizen">
+    <since_tizen>
+      <xsl:apply-templates />
+    </since_tizen>
+  </xsl:template>
+
+  <xsl:template match="/*/pre">
+    <precondition>
+      <xsl:apply-templates />
+    </precondition>
+  </xsl:template>
+
+  <xsl:template match="post">
+    <postcondition>
+      <xsl:apply-templates />
+    </postcondition>
+  </xsl:template>
+
+  <xsl:template match="feature">
+    <feature>
+      <xsl:apply-templates />
+    </feature>
+  </xsl:template>
+
+  <xsl:template match="privlevel">
+    <privlevel>
+      <xsl:apply-templates />
+    </privlevel>
+  </xsl:template>
+
+  <xsl:template match="privilege">
+    <privilege>
+      <xsl:apply-templates />
+    </privilege>
+  </xsl:template>
+
+  <xsl:template match="since_tizen">
+    <since_tizen>
+      <xsl:apply-templates />
+    </since_tizen>
+  </xsl:template>
+
+  <xsl:template match="/*/pre">
+    <precondition>
+      <xsl:apply-templates />
+    </precondition>
+  </xsl:template>
+
+  <xsl:template match="post">
+    <postcondition>
+      <xsl:apply-templates />
+    </postcondition>
+  </xsl:template>
+
+  <xsl:template match="feature">
+    <feature>
+      <xsl:apply-templates />
+    </feature>
+  </xsl:template>
+
+  <xsl:template match="privlevel">
+    <privlevel>
+      <xsl:apply-templates />
+    </privlevel>
+  </xsl:template>
+
+  <xsl:template match="privilege">
+    <privilege>
+      <xsl:apply-templates />
+    </privilege>
+  </xsl:template>
+
   <xsl:template match="see[@langword]">
     <xref>
       <xsl:attribute name="uid">
@@ -205,6 +277,15 @@
               </xsl:for-each>
             </ol>
           </xsl:when>
+          <xsl:otherwise>
+            <ul>
+              <xsl:for-each select="item">
+                <li>
+                  <xsl:apply-templates />
+                </li>
+              </xsl:for-each>
+            </ul>
+          </xsl:otherwise>
         </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>

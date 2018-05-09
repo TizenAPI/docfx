@@ -34,6 +34,15 @@ namespace Microsoft.DocAsCode.Metadata.ManagedReference
 
         public string Remarks { get; private set; }
 
+        ///TIZEN
+        public string Precondition { get; private set; }
+        public string Postcondition { get; private set; }
+        public string Privilege { get; private set; }
+        public string Privlevel { get; private set; }
+        public string Feature { get; private set; }
+        public string SinceTizen { get; private set; }
+        ///
+
         public string Returns { get; private set; }
 
         public List<ExceptionInfo> Exceptions { get; private set; }
@@ -66,6 +75,14 @@ namespace Microsoft.DocAsCode.Metadata.ManagedReference
             var nav = doc.CreateNavigator();
             Summary = GetSummary(nav, context);
             Remarks = GetRemarks(nav, context);
+            ///TIZEN
+            SinceTizen = GetSinceTizen(nav, context);
+            Precondition = GetPrecondition(nav, context);
+            Postcondition = GetPostcondition(nav, context);
+            Feature = GetFeature(nav, context);
+            Privlevel = GetPrivlevel(nav, context);
+            Privilege = GetPrivilege(nav, context);
+            ///
             Returns = GetReturns(nav, context);
 
             Exceptions = GetExceptions(nav, context);
@@ -111,6 +128,14 @@ namespace Microsoft.DocAsCode.Metadata.ManagedReference
 
             Summary = Summary ?? src.Summary;
             Remarks = Remarks ?? src.Remarks;
+            ///TIZEN
+            SinceTizen = SinceTizen ?? src.SinceTizen;
+            Precondition = Precondition ?? src.Precondition;
+            Postcondition = Postcondition ?? src.Postcondition;
+            Feature = Feature ?? src.Feature;
+            Privlevel = Privlevel ?? src.Privlevel;
+            Privilege = Privilege ?? src.Privilege;
+            ///
             Returns = Returns ?? src.Returns;
             if (Exceptions == null && src.Exceptions != null)
             {
@@ -200,6 +225,39 @@ namespace Microsoft.DocAsCode.Metadata.ManagedReference
             string selector = "/member/remarks";
             return GetSingleNodeValue(nav, selector);
         }
+
+        ///TIZEN
+        private string GetSinceTizen(XPathNavigator nav, ITripleSlashCommentParserContext context)
+        {
+            string selector = "/member/since_tizen";
+            return GetSingleNodeValue(nav, selector);
+        }
+        private string GetPrecondition(XPathNavigator nav, ITripleSlashCommentParserContext context)
+        {
+            string selector = "/member/precondition";
+            return GetSingleNodeValue(nav, selector);
+        }
+        private string GetPostcondition(XPathNavigator nav, ITripleSlashCommentParserContext context)
+        {
+            string selector = "/member/postcondition";
+            return GetSingleNodeValue(nav, selector);
+        }
+        private string GetFeature(XPathNavigator nav, ITripleSlashCommentParserContext context)
+        {
+            string selector = "/member/feature";
+            return GetJoinedNodesValue(nav, selector);
+        }
+        private string GetPrivlevel(XPathNavigator nav, ITripleSlashCommentParserContext context)
+        {
+            string selector = "/member/privlevel";
+            return GetSingleNodeValue(nav, selector);
+        }
+        private string GetPrivilege(XPathNavigator nav, ITripleSlashCommentParserContext context)
+        {
+            string selector = "/member/privilege";
+            return GetJoinedNodesValue(nav, selector);
+        }
+        ///
 
         private string GetReturns(XPathNavigator nav, ITripleSlashCommentParserContext context)
         {
@@ -661,6 +719,21 @@ namespace Microsoft.DocAsCode.Metadata.ManagedReference
                     };
                 }
             }
+        }
+
+        private string GetJoinedNodesValue(XPathNavigator navigator, string selector)
+        {
+            var iterator = navigator.Clone().Select(selector);
+            if (iterator == null)
+            {
+                return null;
+            }
+            var values = new List<string>();
+            foreach (var item in iterator)
+            {
+                values.Add(GetXmlValue(item as XPathNavigator));
+            }
+            return string.Join("<br/>\n", values);
         }
 
         private string GetSingleNodeValue(XPathNavigator nav, string selector)

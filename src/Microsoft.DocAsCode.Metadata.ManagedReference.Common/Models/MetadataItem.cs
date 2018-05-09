@@ -90,6 +90,32 @@ namespace Microsoft.DocAsCode.Metadata.ManagedReference
         [JsonProperty("remarks")]
         public string Remarks { get; set; }
 
+        ///TIZEN
+        [YamlMember(Alias = "sinceTizen")]
+        [JsonProperty("sinceTizen")]
+        public string SinceTizen { get; set; }
+
+        [YamlMember(Alias = "pre")]
+        [JsonProperty("pre")]
+        public string Precondition { get; set; }
+
+        [YamlMember(Alias = "post")]
+        [JsonProperty("post")]
+        public string Postcondition { get; set; }
+
+        [YamlMember(Alias = "feature")]
+        [JsonProperty("feature")]
+        public string Feature { get; set; }
+
+        [YamlMember(Alias = "privlevel")]
+        [JsonProperty("privlevel")]
+        public string Privlevel { get; set; }
+
+        [YamlMember(Alias = "privilege")]
+        [JsonProperty("privilege")]
+        public string Privilege { get; set; }
+        ///
+
         [YamlMember(Alias = "example")]
         [JsonProperty("example")]
         public List<string> Examples { get; set; }
@@ -182,6 +208,20 @@ namespace Microsoft.DocAsCode.Metadata.ManagedReference
                 Summary = src.Summary;
             if (Remarks == null)
                 Remarks = src.Remarks;
+            ///TIZEN
+            if (SinceTizen == null)
+                SinceTizen = src.SinceTizen;
+            if (Precondition == null)
+                Precondition = src.Precondition;
+            if (Postcondition == null)
+                Postcondition = src.Postcondition;
+            if (Feature == null)
+                Feature = src.Feature;
+            if (Privlevel == null)
+                Privlevel = src.Privlevel;
+            if (Privilege == null)
+                Privilege = src.Privilege;
+            ///
 
             if (Exceptions == null && src.Exceptions != null)
                 Exceptions = src.Exceptions.Select(e => e.Clone()).ToList();

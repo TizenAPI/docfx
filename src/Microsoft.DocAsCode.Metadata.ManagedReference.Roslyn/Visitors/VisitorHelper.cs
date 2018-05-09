@@ -29,6 +29,14 @@ namespace Microsoft.DocAsCode.Metadata.ManagedReference
                 if (commentModel == null) return;
                 item.Summary = commentModel.Summary;
                 item.Remarks = commentModel.Remarks;
+                ///TIZEN
+                item.SinceTizen = commentModel.SinceTizen;
+                item.Precondition = commentModel.Precondition;
+                item.Postcondition = commentModel.Postcondition;
+                item.Feature = commentModel.Feature;
+                item.Privlevel = commentModel.Privlevel;
+                item.Privilege = commentModel.Privilege;
+                ///
                 item.Exceptions = commentModel.Exceptions;
                 item.Sees = commentModel.Sees;
                 item.SeeAlsos = commentModel.SeeAlsos;

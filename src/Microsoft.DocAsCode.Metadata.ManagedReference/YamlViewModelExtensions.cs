@@ -258,6 +258,14 @@ namespace Microsoft.DocAsCode.Metadata.ManagedReference
                 NamespaceName = model.NamespaceName,
                 Summary = model.Summary,
                 Remarks = model.Remarks,
+                ///TIZEN
+                SinceTizen = model.SinceTizen,
+                Precondition = model.Precondition,
+                Postcondition = model.Postcondition,
+                Feature = model.Feature,
+                Privlevel = model.Privlevel,
+                Privilege = model.Privilege,
+                ///
                 Examples = model.Examples,
                 Syntax = model.Syntax.ToSyntaxDetailViewModel(),
                 Overridden = model.Overridden,

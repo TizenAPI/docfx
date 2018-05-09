@@ -252,6 +252,36 @@ namespace Microsoft.DocAsCode.DataContracts.ManagedReference
         [MarkdownContent]
         public string Remarks { get; set; }
 
+        ///TIZEN
+        [YamlMember(Alias = "sinceTizen")]
+        [JsonProperty("sinceTizen")]
+        public string SinceTizen { get; set; }
+
+        [YamlMember(Alias = "pre")]
+        [JsonProperty("pre")]
+        [MarkdownContent]
+        public string Precondition { get; set; }
+
+        [YamlMember(Alias = "post")]
+        [JsonProperty("post")]
+        [MarkdownContent]
+        public string Postcondition { get; set; }
+
+        [YamlMember(Alias = "feature")]
+        [JsonProperty("feature")]
+        [MarkdownContent]
+        public string Feature { get; set; }
+
+        [YamlMember(Alias = "privlevel")]
+        [JsonProperty("privlevel")]
+        public string Privlevel { get; set; }
+
+        [YamlMember(Alias = "privilege")]
+        [JsonProperty("privilege")]
+        [MarkdownContent]
+        public string Privilege { get; set; }
+        ///
+
         [YamlMember(Alias = "example")]
         [JsonProperty("example")]
         [MergeOption(MergeOption.Replace)]

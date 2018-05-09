@@ -92,6 +92,32 @@ namespace Microsoft.DocAsCode.Build.ManagedReference.BuildOutputs
         [JsonProperty(Constants.PropertyName.AdditionalNotes)]
         public AdditionalNotes AdditionalNotes { get; set; }
 
+        ///TIZEN
+        [YamlMember(Alias = "sinceTizen")]
+        [JsonProperty("sinceTizen")]
+        public string SinceTizen { get; set; }
+
+        [YamlMember(Alias = "pre")]
+        [JsonProperty("pre")]
+        public string Precondition { get; set; }
+
+        [YamlMember(Alias = "post")]
+        [JsonProperty("post")]
+        public string Postcondition { get; set; }
+
+        [YamlMember(Alias = "feature")]
+        [JsonProperty("feature")]
+        public string Feature { get; set; }
+
+        [YamlMember(Alias = "privlevel")]
+        [JsonProperty("privlevel")]
+        public string Privlevel { get; set; }
+
+        [YamlMember(Alias = "privilege")]
+        [JsonProperty("privilege")]
+        public string Privilege { get; set; }
+        ///
+
         [YamlMember(Alias = "example")]
         [JsonProperty("example")]
         public List<string> Examples { get; set; }
@@ -233,6 +259,14 @@ namespace Microsoft.DocAsCode.Build.ManagedReference.BuildOutputs
                 NamespaceName = vm.NamespaceName,
                 Remarks = vm.Remarks,
                 AdditionalNotes = vm.AdditionalNotes,
+                ///TIZEN
+                SinceTizen = vm.SinceTizen,
+                Precondition = vm.Precondition,
+                Postcondition = vm.Postcondition,
+                Feature = vm.Feature,
+                Privlevel = vm.Privlevel,
+                Privilege = vm.Privilege,
+                ///
                 Examples = vm.Examples,
                 Overridden = ApiNames.FromUid(vm.Overridden),
                 Overload = ApiNames.FromUid(vm.Overload),

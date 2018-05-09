@@ -45,6 +45,14 @@ namespace Microsoft.DocAsCode.Build.ManagedReference
             "namespace",
             "summary",
             "remarks",
+            ///TIZEN
+            "sinceTizen",
+            "pre",
+            "post",
+            "feature",
+            "privlevel",
+            "privilege",
+            ///
             "example",
             "syntax",
             "overridden",
