@@ -39,6 +39,8 @@ namespace Microsoft.DocAsCode.Build.Engine
 
         public ImmutableDictionary<string, FileAndType> SourceFiles { get; set; }
 
+        public ImmutableList<string> InvalidSourceFiles { get; set; }
+
         public ImmutableDictionary<string, FileIncrementalInfo> IncrementalInfos { get; set; }
 
         public Dictionary<FileAndType, FileAndType> FileMap { get; } = new Dictionary<FileAndType, FileAndType>();
@@ -296,6 +298,11 @@ namespace Microsoft.DocAsCode.Build.Engine
         public void LogInfo(string message, string file, string line)
         {
             Logger.LogInfo(message, file: file, line: line);
+        }
+
+        public void LogSuggestion(string message, string file, string line)
+        {
+            Logger.LogSuggestion(message, file: file, line: line);
         }
 
         public void LogWarning(string message, string file, string line)

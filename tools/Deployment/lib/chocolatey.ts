@@ -22,6 +22,7 @@ export class Chocolatey {
         Guard.argumentNotNullOrEmpty(chocoToken, "chocoToken");
 
         // Ignore to publish chocolatey package if RELEASENOTE.md hasn't been modified.
+        // TODO: check is this packaged published instead of RELEASENOTE.md
         let isUpdated = await Common.isReleaseNoteVersionChangedAsync(releaseNotePath);
         if (!isUpdated) {
             console.log(`${releaseNotePath} hasn't been changed. Ignore to publish package to chocolatey.`);
@@ -44,7 +45,7 @@ export class Chocolatey {
     }
 
     private static async prepareChocoAsync(homeDir: string, chocoToken: string): Promise<void> {
-        return Common.execAsync("choco", ["apiKey", "-k", chocoToken, "-source", "https://chocolatey.org/", homeDir]);
+        return Common.execAsync("choco", ["apiKey", "-k", chocoToken, "-source", "https://push.chocolatey.org/", homeDir]);
     }
 
     private static updateChocoConfig(scriptPath: string, nuspecPath: string, version: string, sha1: string) {

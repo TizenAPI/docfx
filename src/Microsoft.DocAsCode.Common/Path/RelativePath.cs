@@ -71,8 +71,8 @@ namespace Microsoft.DocAsCode.Common
                 return false;
             }
 
-            return path.StartsWith(NormalizedWorkingFolder)
-                || path.StartsWith(AltWorkingFolder);
+            return path.StartsWith(NormalizedWorkingFolder, StringComparison.Ordinal)
+                || path.StartsWith(AltWorkingFolder, StringComparison.Ordinal);
         }
 
         public static string GetPathWithoutWorkingFolderChar(string path)
@@ -154,7 +154,7 @@ namespace Microsoft.DocAsCode.Common
             {
                 if (i >= leftParts.Length - 1)
                     break;
-                if (!FilePathComparer.OSPlatformSensitiveComparer.Equals(leftParts[i], rightParts[i]))
+                if (!FilePathComparer.OSPlatformSensitiveStringComparer.Equals(leftParts[i], rightParts[i]))
                     break;
                 commonCount++;
             }
@@ -345,7 +345,7 @@ namespace Microsoft.DocAsCode.Common
                 {
                     return true;
                 }
-                if (!FilePathComparer.OSPlatformSensitiveComparer.Equals(_parts[i], value._parts[i]))
+                if (!FilePathComparer.OSPlatformSensitiveStringComparer.Equals(_parts[i], value._parts[i]))
                 {
                     return false;
                 }
@@ -397,6 +397,7 @@ namespace Microsoft.DocAsCode.Common
                 switch (parts[i])
                 {
                     case "~":
+                    case "%7E":
                         if (parentCount > 0 || stack.Count > 0 || isFromWorkingFolder)
                         {
                             throw new InvalidOperationException($"Invalid path: {path}");
