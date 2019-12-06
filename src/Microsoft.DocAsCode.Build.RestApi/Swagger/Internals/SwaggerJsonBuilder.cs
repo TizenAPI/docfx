@@ -18,13 +18,17 @@ namespace Microsoft.DocAsCode.Build.RestApi.Swagger.Internals
     internal class SwaggerJsonBuilder
     {
         private readonly IDictionary<JsonLocationInfo, SwaggerObjectBase> _documentObjectCache;
+        private readonly IDictionary<JsonLocationInfo, SwaggerObjectBase> _resolvedObjectCache;
         private const string ReferenceKey = "$ref";
         private const string InternalRefNameKey = "x-internal-ref-name";
         private const string InternalLoopRefNameKey = "x-internal-loop-ref-name";
+        private const string InternalLoopTokenKey = "x-internal-loop-token";
+
 
         public SwaggerJsonBuilder()
         {
             _documentObjectCache = new Dictionary<JsonLocationInfo, SwaggerObjectBase>();
+            _resolvedObjectCache = new Dictionary<JsonLocationInfo, SwaggerObjectBase>();
         }
 
         public SwaggerObjectBase Read(string swaggerPath)
@@ -37,6 +41,7 @@ namespace Microsoft.DocAsCode.Build.RestApi.Swagger.Internals
         {
             using (JsonReader reader = new JsonTextReader(EnvironmentContext.FileAbstractLayer.OpenReadText(swaggerPath)))
             {
+                reader.DateParseHandling = DateParseHandling.None;
                 var token = JToken.ReadFrom(reader);
                 return LoadCore(token, swaggerPath);
             }
@@ -207,13 +212,20 @@ namespace Microsoft.DocAsCode.Build.RestApi.Swagger.Internals
                             {
                                 var loopRef = new SwaggerLoopReferenceObject();
                                 loopRef.Dictionary.Add(InternalLoopRefNameKey, new SwaggerValue { Token = swagger.ReferenceName });
+                                loopRef.Dictionary.Add(InternalLoopTokenKey, new SwaggerValue { Token = swagger.Token });
                                 return loopRef;
                             }
 
                             // Clone to avoid change the reference object in _documentObjectCache
                             refStack.Push(jsonLocationInfo);
-                            var resolved = ResolveReferences(referencedObjectBase.Clone(), jsonLocationInfo.FilePath, refStack);
-                            var swaggerObject = ResolveSwaggerObject(resolved);
+
+                            if (!_resolvedObjectCache.TryGetValue(jsonLocationInfo, out var resolvedObject))
+                            {
+                                resolvedObject = ResolveReferences(referencedObjectBase.Clone(), jsonLocationInfo.FilePath, refStack);
+                                _resolvedObjectCache.Add(jsonLocationInfo, resolvedObject);
+                            }
+
+                            var swaggerObject = ResolveSwaggerObject(resolvedObject);
                             if (!swaggerObject.Dictionary.ContainsKey(InternalRefNameKey))
                             {
                                 swaggerObject.Dictionary.Add(InternalRefNameKey, new SwaggerValue { Token = swagger.ReferenceName });

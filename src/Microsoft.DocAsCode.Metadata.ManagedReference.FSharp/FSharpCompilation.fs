@@ -120,9 +120,9 @@ type FSharpCompilation (compilation: FSharpCheckProjectResults, projPath: string
         if typ.HasTypeDefinition then
             let td = typ.TypeDefinition
             let trimmedAp =
-                if td.AccessPath.StartsWith("Microsoft.FSharp.Core") then ""
-                elif td.AccessPath.StartsWith("Microsoft.FSharp.Collections") then ""
-                elif td.AccessPath.StartsWith("Microsoft.FSharp") then td.AccessPath.["Microsoft.".Length..] + "."
+                if td.AccessPath.StartsWith("Microsoft.FSharp.Core", StringComparison.Ordinal) then ""
+                elif td.AccessPath.StartsWith("Microsoft.FSharp.Collections", StringComparison.Ordinal) then ""
+                elif td.AccessPath.StartsWith("Microsoft.FSharp", StringComparison.Ordinal) then td.AccessPath.["Microsoft.".Length..] + "."
                 else td.AccessPath + "."
             let isPostfix = 
                 (postfixTypes |> List.contains (trimmedAp + td.DisplayName)) || td.IsArrayType || td.IsByRef
@@ -531,7 +531,7 @@ type FSharpCompilation (compilation: FSharpCheckProjectResults, projPath: string
             |> Seq.filter attrAllowedByFilter
             |> Seq.map (fun a -> 
                 let dispName = 
-                    if a.AttributeType.DisplayName.EndsWith("Attribute") then
+                    if a.AttributeType.DisplayName.EndsWith("Attribute", StringComparison.Ordinal) then
                         a.AttributeType.DisplayName.[0 .. a.AttributeType.DisplayName.Length-"Attribute".Length-1]
                     else
                         a.AttributeType.DisplayName
@@ -940,6 +940,7 @@ type FSharpCompilation (compilation: FSharpCheckProjectResults, projPath: string
             elif ent.IsClass then MemberType.Class, ExtendedSymbolKind.Class
             elif ent.IsInterface then MemberType.Interface, ExtendedSymbolKind.Interface
             elif ent.IsValueType then MemberType.Struct, ExtendedSymbolKind.Struct
+            elif ent.IsOpaque then MemberType.Class, ExtendedSymbolKind.Class
             else failwithf "entity %A has unsupported type" ent            
 
         // extract basic information

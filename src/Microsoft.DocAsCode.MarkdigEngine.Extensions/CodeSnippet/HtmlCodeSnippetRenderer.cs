@@ -5,6 +5,7 @@ namespace Microsoft.DocAsCode.MarkdigEngine.Extensions
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -12,11 +13,17 @@ namespace Microsoft.DocAsCode.MarkdigEngine.Extensions
     using Markdig.Helpers;
     using Markdig.Renderers;
     using Markdig.Renderers.Html;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
 
     public class HtmlCodeSnippetRenderer : HtmlObjectRenderer<CodeSnippet>
     {
         private readonly MarkdownContext _context;
         private const string tagPrefix = "snippet";
+        private const string warningMessageId = "codeIncludeNotFound";
+        private const string defaultWarningMessage = "It looks like the sample you are looking for does not exist.";
+        private const string warningTitleId = "warning";
+        private const string defaultWarningTitle = "<h5>WARNING</h5>";
 
         private static readonly IReadOnlyDictionary<string, List<string>> LanguageAlias = new Dictionary<string, List<string>>
         {
@@ -168,23 +175,61 @@ namespace Microsoft.DocAsCode.MarkdigEngine.Extensions
 
         protected override void Write(HtmlRenderer renderer, CodeSnippet codeSnippet)
         {
-            var (content, codeSnippetPath) = _context.ReadFile(codeSnippet.CodePath, InclusionContext.File);
+            var (content, codeSnippetPath) = _context.ReadFile(codeSnippet.CodePath, InclusionContext.File, codeSnippet);
 
             if (content == null)
             {
-                _context.LogWarning("codesnippet-not-found", $"Cannot resolve '{codeSnippet.CodePath}' relative to '{InclusionContext.File}'.");
-                renderer.WriteEscape(codeSnippet.Raw);
+                _context.LogWarning("codesnippet-not-found", $"Cannot resolve '{codeSnippet.CodePath}' relative to '{InclusionContext.File}'.", codeSnippet);
+                renderer.Write(GetWarning());
                 return;
             }
 
-            using (InclusionContext.PushFile(codeSnippetPath))
-            {
-                codeSnippet.SetAttributeString();
+            codeSnippet.SetAttributeString();
 
-                renderer.Write("<pre><code").WriteAttributes(codeSnippet).Write(">");
-                renderer.WriteEscape(GetContent(content, codeSnippet));
-                renderer.Write("</code></pre>");
+            renderer.Write("<pre><code").WriteAttributes(codeSnippet).Write(">");
+            renderer.WriteEscape(GetContent(content, codeSnippet));
+            renderer.Write("</code></pre>");
+        }
+
+        private string GetNoteBookContent(string content, string tagName, CodeSnippet obj)
+        {
+            JObject contentObject = null;
+            try
+            {
+                contentObject = JObject.Parse(content);
             }
+            catch (JsonReaderException ex)
+            {
+                _context.LogError("not-notebook-content", "Not a valid Notebook. " + ex.ToString(), obj);
+                return string.Empty;
+            }
+
+            string sourceJsonPath = string.Format("$..cells[?(@.metadata.name=='{0}')].source", tagName);
+            JToken sourceObject = null;
+            try
+            {
+                sourceObject = contentObject.SelectToken(sourceJsonPath);
+            }
+            catch (JsonException)
+            {
+                _context.LogError("mutiple-tags-with-same-name", string.Format("Multiple entries with the name '{0}' where found in the notebook.", tagName), obj);
+                return string.Empty;
+            }
+
+            if (sourceObject == null)
+            {
+                _context.LogError("tag-not-found", string.Format("The name '{0}' is not present in the notebook file.", tagName), obj);
+                return string.Empty;
+            }
+
+            StringBuilder showCode = new StringBuilder();
+            string[] lines = ((JArray)sourceObject).ToObject<string[]>();
+            for (int i = 0; i < lines.Length; i++)
+            {
+                showCode.Append(lines[i]);
+            }
+
+            return showCode.ToString();
         }
 
         private string GetContent(string content, CodeSnippet obj)
@@ -195,9 +240,18 @@ namespace Microsoft.DocAsCode.MarkdigEngine.Extensions
             if (!string.IsNullOrEmpty(obj.TagName))
             {
                 var lang = obj.Language ?? Path.GetExtension(obj.CodePath);
+
+                if (obj.IsNotebookCode)
+                {
+                    return GetNoteBookContent(content, obj.TagName, obj);
+                }
+
                 if (!CodeLanguageExtractors.TryGetValue(lang, out List<CodeSnippetExtrator> extrators))
                 {
-                    _context.LogError("unknown-language-code", $"{lang} is not supported languaging name, alias or extension for parsing code snippet with tag name, you can use line numbers instead");
+                    _context.LogError(
+                        "unknown-language-code",
+                        $"{lang} is not supported languaging name, alias or extension for parsing code snippet with tag name, you can use line numbers instead",
+                        obj);
                 }
 
                 if (extrators != null)
@@ -368,6 +422,18 @@ namespace Microsoft.DocAsCode.MarkdigEngine.Extensions
             }
 
             return -1;
+        }
+
+        private string GetWarning()
+        {
+            var warningTitle = _context.GetToken(warningTitleId) ?? defaultWarningTitle;
+            var warningMessage = _context.GetToken(warningMessageId) ?? defaultWarningMessage;
+
+            return string.Format(@"<div class=""WARNING"">
+{0}
+<p>{1}</p>
+</div>", warningTitle, warningMessage);
+
         }
     }
 }

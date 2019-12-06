@@ -16,15 +16,7 @@ namespace Microsoft.DocAsCode.Tests.Common
 
         protected string GetRandomFolder()
         {
-            var folder = Path.GetRandomFileName();
-            if (Directory.Exists(folder))
-            {
-                folder = folder + DateTime.Now.ToString("HHmmssffff");
-                if (Directory.Exists(folder))
-                {
-                    throw new InvalidOperationException($"Random folder name collides {folder}");
-                }
-            }
+            var folder = GetFolder();
 
             lock (_locker)
             {
@@ -34,6 +26,35 @@ namespace Microsoft.DocAsCode.Tests.Common
             Directory.CreateDirectory(folder);
             return folder;
         }
+
+        protected string MoveToRandomFolder(string origin)
+        {
+            var folder = GetFolder();
+
+            lock (_locker)
+            {
+                _folderCollection.Remove(folder);
+                _folderCollection.Add(folder);
+            }
+
+            Directory.Move(origin, folder);
+            return folder;
+        }
+
+        private string GetFolder()
+        {
+            var folder = Path.GetRandomFileName();
+            if (Directory.Exists(folder))
+            {
+                folder = folder + DateTime.Now.ToString("HHmmssffff");
+                if (Directory.Exists(folder))
+                {
+                    throw new InvalidOperationException($"Random folder name collides {folder}");
+                }
+            }
+            return folder;
+        }
+
 
         #region IO related
 
@@ -87,6 +108,24 @@ namespace Microsoft.DocAsCode.Tests.Common
             }
             File.Delete(Path.Combine(baseFolder, fileName));
             return CreateFile(fileName, lines, baseFolder);
+        }
+
+        protected static string UpdateFile(string fileName, string content, string baseFolder)
+        {
+            if (fileName == null)
+            {
+                throw new ArgumentNullException(nameof(fileName));
+            }
+            if (content == null)
+            {
+                throw new ArgumentNullException(nameof(content));
+            }
+            if (baseFolder == null)
+            {
+                throw new ArgumentNullException(nameof(baseFolder));
+            }
+            File.Delete(Path.Combine(baseFolder, fileName));
+            return CreateFile(fileName, content, baseFolder);
         }
 
         protected static string CreateDirectory(string dir, string baseFolder)
