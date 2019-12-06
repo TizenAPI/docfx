@@ -1,6 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../Shared/test.base.props" />
-
+  <PropertyGroup>
+    <Deterministic>false</Deterministic>
+  </PropertyGroup>
+  
   <ItemGroup>
     <Compile Include="FSharpCompilationTests.fs" />
     <Compile Include="FSharpProjectTests.fs" />
